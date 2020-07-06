@@ -1,18 +1,20 @@
 '''
-1. targets 폴더 안에 미리 기재된 아티스트 id를 가져
+1. targets 폴더 안에 미리 아티스트 id를 적어놓은 텍스트 파일을 읽어옴
 2. 각 아티스트별 상세 페이지를 요청하여 아티스트 상세 정보 수집
 3. 유저 프로필 이미지 수집 및 썸네일 생성
 4. 유저 배너 이미지 수집
 '''
 
-import scrapy
-from scrapper import util
-import os
-from bs4 import BeautifulSoup
-import json
-from scrapper.dbhandler import DBHandler
-from PIL import Image
 import io
+import json
+import os
+
+import scrapy
+from PIL import Image
+from bs4 import BeautifulSoup
+
+from scrapper import util
+from scrapper.dbhandler import DBHandler
 from scrapper.gcphandler import GCPHandler
 
 

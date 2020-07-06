@@ -31,18 +31,34 @@ class DBHandler:
         with self.conn.cursor() as cursor:
             cursor.execute(update_sql)
             self.conn.commit()
-    # def select_user(self):
-    #     select_sql = "select user_sid from user"
-    #     with self.conn.cursor() as cursor:
-    #         cursor.execute(select_sql)
-    #     result = [x[0] for x in cursor.fetchall()]
-    #     return result
-    #
-    # def insert_tracks(self, tracks):
-    #     insert_sql = "insert IGNORE into tracks(track_id, track_title, track_user_sid, track_artwork_link, track_genre, track_m3u8_url) values "
-    #     for track in tracks:
-    #         insert_sql += f"{track['track_id'], track['track_title'], track['track_user_sid'], track['track_artwork_link'], track['track_genre'], track['track_m3u8_url']}, "
-    #     insert_sql = insert_sql[:-2]
-    #     with self.conn.cursor() as cursor:
-    #         cursor.execute(insert_sql)
-    #         self.conn.commit()
+
+    def select_user(self, target_ids):
+        select_sql = "select user_sid from users where "
+        for target_id in target_ids:
+            select_sql += f"user_id='{target_id}' or "
+        select_sql = select_sql[:-4]
+        with self.conn.cursor() as cursor:
+            cursor.execute(select_sql)
+        result = [x[0] for x in cursor.fetchall()]
+        return result
+
+    def insert_tracks(self, tracks):
+        insert_sql = "insert IGNORE into tracks(created_at, track_id, track_user_sid, track_title, track_genre, track_duration, track_description) values "
+        for track in tracks:
+            insert_sql += f"{track['created_at'], track['track_id'], track['track_user_sid'], track['track_title'], track['track_genre'], track['track_duration'], track['track_description']}, "
+        insert_sql = insert_sql[:-2]
+        with self.conn.cursor() as cursor:
+            cursor.execute(insert_sql)
+            self.conn.commit()
+
+    def update_track_artwork(self, track_json):
+        update_sql = f"update tracks set track_artwork='{track_json['track_artwork']}', track_artwork_thumbnail='{track_json['track_artwork_thumbnail']}' where track_id='{track_json['track_id']}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(update_sql)
+            self.conn.commit()
+
+    def update_track_m3u8(self, track_json):
+        update_sql = f"update tracks set track_m3u8_url='{track_json['track_m3u8_url']}' where track_id='{track_json['track_id']}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(update_sql)
+            self.conn.commit()
