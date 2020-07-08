@@ -25,7 +25,7 @@ class ArtistSpider(scrapy.Spider):
     def __init__(self):
         self.config = util.load_config()
         util.register_gcp_credential(self.config)
-        self.target_ids = util.load_target_ids('target01.txt')
+        self.target_ids = util.load_target_ids('target.txt')
         self.dbhandler = DBHandler(self.config)
         self.gcphandler = GCPHandler(self.config)
 

@@ -21,7 +21,7 @@ class TagSpider(scrapy.Spider):
     def __init__(self):
         self.config = util.load_config()
         util.register_gcp_credential(self.config)
-        self.target_ids = util.load_target_ids('target01.txt')
+        self.target_ids = util.load_target_ids('target.txt')
         self.dbhandler = DBHandler(self.config)
         self.user_sids = self.dbhandler.select_user_sids(self.target_ids)
         self.re_quoted = re.compile(r'\"(.+?)\"')
@@ -41,8 +41,9 @@ class TagSpider(scrapy.Spider):
         script = script.split('"data":[')[-1].replace(']}]);</script>', '')
         track_info = json.loads(script)
         tags_str = track_info['tag_list']
-        quoted_tags = re.findall(self.re_quoted, tags_str)
-        simple_tags = [x for x in re.sub(self.re_quoted, '', tags_str).split(' ') if x]
+        tags_str = tags_str.replace('soundcloud:source=android-record', '')
+        quoted_tags = [x.strip() for x in re.findall(self.re_quoted, tags_str) if x]
+        simple_tags = [x.strip() for x in re.sub(self.re_quoted, '', tags_str).split(' ') if x]
         tags = quoted_tags + simple_tags
         if tags:
             self.dbhandler.insert_tags(track_id, tags)

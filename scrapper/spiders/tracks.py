@@ -25,7 +25,7 @@ class TrackSpider(scrapy.Spider):
         warnings.simplefilter("ignore")
         self.config = util.load_config()
         util.register_gcp_credential(self.config)
-        self.target_ids = util.load_target_ids('target01.txt')
+        self.target_ids = util.load_target_ids('target.txt')
         self.dbhandler = DBHandler(self.config)
         self.gcphandler = GCPHandler(self.config)
 
@@ -61,7 +61,9 @@ class TrackSpider(scrapy.Spider):
                 'track_description': collection['description'] if collection['description'] else '',
                 'track_duration': collection['duration'],
                 'track_genre': collection['genre'] if collection['genre'] else '',
-                'track_permalink': collection['permalink_url']
+                'track_permalink': collection['permalink_url'] if collection['permalink_url'] else '',
+                'track_likes_count': collection['likes_count'] if collection['likes_count'] else 0,
+                'track_playback_count': collection['playback_count'] if collection['playback_count'] else 0,
             }
             if artwork_url:
                 artwork_req = scrapy.Request(artwork_url.replace('large', 't500x500'), self.parse_artwork_img)

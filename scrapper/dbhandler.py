@@ -55,9 +55,9 @@ class DBHandler:
         return cursor.fetchall()
 
     def insert_tracks(self, tracks):
-        insert_sql = "insert IGNORE into tracks(created_at, track_id, track_user_sid, track_title, track_genre, track_duration, track_description, track_permalink) values "
+        insert_sql = "insert IGNORE into tracks(created_at, track_id, track_user_sid, track_title, track_genre, track_duration, track_description, track_permalink, track_likes_count, track_playback_count) values "
         for track in tracks:
-            insert_sql += f"{track['created_at'], track['track_id'], track['track_user_sid'], track['track_title'], track['track_genre'], track['track_duration'], track['track_description'], track['track_permalink']}, "
+            insert_sql += f"{track['created_at'], track['track_id'], track['track_user_sid'], track['track_title'], track['track_genre'], track['track_duration'], track['track_description'], track['track_permalink'], track['track_likes_count'], track['track_playback_count']}, "
         insert_sql = insert_sql[:-2]
         with self.conn.cursor() as cursor:
             cursor.execute(insert_sql)
@@ -83,6 +83,12 @@ class DBHandler:
 
     def update_track_permalink(self, track_id, track_permalink):
         update_sql = f"update tracks set track_permalink='{track_permalink}' where track_id='{track_id}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(update_sql)
+            self.conn.commit()
+
+    def update_track_popularity(self, track_id, track_likes_count, track_playback_cont):
+        update_sql = f"update tracks set track_likes_count='{track_likes_count}', track_playback_count='{track_playback_cont}' where track_id='{track_id}'"
         with self.conn.cursor() as cursor:
             cursor.execute(update_sql)
             self.conn.commit()

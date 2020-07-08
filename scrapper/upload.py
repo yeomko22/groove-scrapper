@@ -1,9 +1,12 @@
-import os
-from gcphandler import GCPHandler
-from dbhandler import DBHandler
-import util
-import requests
 import hashlib
+import os
+import shutil
+
+import requests
+
+import util
+from dbhandler import DBHandler
+from gcphandler import GCPHandler
 
 
 class Uploader:
@@ -12,15 +15,16 @@ class Uploader:
         util.register_gcp_credential(self.config)
         self.dbhandler = DBHandler(self.config)
         self.gcphandler = GCPHandler(self.config)
-        target_ids = util.load_target_ids('target01.txt')
+        target_ids = util.load_target_ids('target.txt')
         self.user_sids = self.dbhandler.select_user_sids(target_ids)
 
     def upload_per_user(self):
-        tmpdir = os.path.abspath('../tmp')
+        tmpdir = os.path.abspath('./tmp')
         for user_sid in self.user_sids:
             track_ids = [x for x in os.listdir(os.path.join(tmpdir, str(user_sid))) if '.DS_Store' not in x]
             for track_id in track_ids:
                 self.upload_hls(user_sid, track_id)
+            shutil.rmtree(f'./tmp/{user_sid}')
 
     def upload_hls(self, user_sid, track_id):
         upload_url = self.config['UPLOADURL']
@@ -28,7 +32,7 @@ class Uploader:
         hashkey = hashlib.sha1()
         hashkey.update(hashstr.encode('utf-8'))
         hlshash = hashkey.hexdigest()
-        filedir = f'../tmp/{user_sid}/{track_id}'
+        filedir = f'./tmp/{user_sid}/{track_id}'
         files = os.listdir(filedir)
         for file in files:
             if '.mp3' in file:

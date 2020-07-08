@@ -14,8 +14,8 @@ from scrapper.dbhandler import DBHandler
 from scrapper.gcphandler import GCPHandler
 
 
-class TrackPermalinkSpider(scrapy.Spider):
-    name = 'track_permalink'
+class TrackPopularitySpider(scrapy.Spider):
+    name = 'track_popularity'
     start_urls = ['https://soundcloud.com/']
 
     def __init__(self):
@@ -32,22 +32,20 @@ class TrackPermalinkSpider(scrapy.Spider):
         url_tail = f"/tracks?representation=&client_id={self.config['CLIENT_ID']}&limit=20&offset=0&linked_partitioning=1&app_version=1593604665&app_locale=en"
         for user_sid in user_sids:
             url = url_head.format(user_sid) + url_tail
-            req = scrapy.Request(url, self.parse_track_permalink)
-            req.meta['user_sid'] = user_sid
+            req = scrapy.Request(url, self.parse_track_popularity)
             yield req
 
-    def parse_track_permalink(self, response):
-        user_sid = response.meta['user_sid']
+    def parse_track_popularity(self, response):
         result_json = json.loads(response.body)
         collections = result_json['collection']
         if not collections:
             return
         for collection in collections:
-            track_permalink = collection['permalink_url']
+            track_likes_count = collection['likes_count'] if collection['likes_count'] else 0
+            track_playback_count = collection['playback_count'] if collection['playback_count'] else 0
             track_id = collection['id']
-            self.dbhandler.update_track_permalink(track_id, track_permalink)
+            self.dbhandler.update_track_popularity(track_id, track_likes_count, track_playback_count)
         if result_json['next_href']:
             url = result_json['next_href'] + f'&client_id={self.config["CLIENT_ID"]}'
-            req = scrapy.Request(url, self.parse_track_permalink)
-            req.meta['user_sid'] = user_sid
+            req = scrapy.Request(url, self.parse_track_popularity)
             yield req
