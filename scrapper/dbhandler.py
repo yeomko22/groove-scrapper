@@ -48,11 +48,11 @@ class DBHandler:
             cursor.execute(select_sql)
         return cursor.fetchall()
 
-    def select_track_id(self, user_sid):
-        select_sql = f"select track_id from tracks where track_user_sid='{user_sid}'"
+    def select_track_permanlink(self, user_sid):
+        select_sql = f"select track_id, track_permalink from tracks where track_user_sid='{user_sid}'"
         with self.conn.cursor() as cursor:
             cursor.execute(select_sql)
-        return [x[0] for x in cursor.fetchall()]
+        return cursor.fetchall()
 
     def insert_tracks(self, tracks):
         insert_sql = "insert IGNORE into tracks(created_at, track_id, track_user_sid, track_title, track_genre, track_duration, track_description, track_permalink) values "
@@ -85,4 +85,13 @@ class DBHandler:
         update_sql = f"update tracks set track_permalink='{track_permalink}' where track_id='{track_id}'"
         with self.conn.cursor() as cursor:
             cursor.execute(update_sql)
+            self.conn.commit()
+
+    def insert_tags(self, track_id, tags):
+        insert_sql = 'insert into tags(tag_track_id, tag_name) values '
+        for tag in tags:
+            insert_sql += f'{track_id, tag}, '
+        insert_sql = insert_sql[:-2]
+        with self.conn.cursor() as cursor:
+            cursor.execute(insert_sql)
             self.conn.commit()
