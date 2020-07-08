@@ -61,6 +61,7 @@ class TrackSpider(scrapy.Spider):
                 'track_description': collection['description'] if collection['description'] else '',
                 'track_duration': collection['duration'],
                 'track_genre': collection['genre'] if collection['genre'] else '',
+                'track_permalink': collection['permalink_url']
             }
             if artwork_url:
                 artwork_req = scrapy.Request(artwork_url.replace('large', 't500x500'), self.parse_artwork_img)

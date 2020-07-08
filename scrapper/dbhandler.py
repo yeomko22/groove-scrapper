@@ -48,10 +48,16 @@ class DBHandler:
             cursor.execute(select_sql)
         return cursor.fetchall()
 
+    def select_track_id(self, user_sid):
+        select_sql = f"select track_id from tracks where track_user_sid='{user_sid}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(select_sql)
+        return [x[0] for x in cursor.fetchall()]
+
     def insert_tracks(self, tracks):
-        insert_sql = "insert IGNORE into tracks(created_at, track_id, track_user_sid, track_title, track_genre, track_duration, track_description) values "
+        insert_sql = "insert IGNORE into tracks(created_at, track_id, track_user_sid, track_title, track_genre, track_duration, track_description, track_permalink) values "
         for track in tracks:
-            insert_sql += f"{track['created_at'], track['track_id'], track['track_user_sid'], track['track_title'], track['track_genre'], track['track_duration'], track['track_description']}, "
+            insert_sql += f"{track['created_at'], track['track_id'], track['track_user_sid'], track['track_title'], track['track_genre'], track['track_duration'], track['track_description'], track['track_permalink']}, "
         insert_sql = insert_sql[:-2]
         with self.conn.cursor() as cursor:
             cursor.execute(insert_sql)
@@ -69,3 +75,14 @@ class DBHandler:
             cursor.execute(update_sql)
             self.conn.commit()
 
+    def update_track_hls(self, track_id, hlshash):
+        update_sql = f"update tracks set track_hls='{hlshash}' where track_id='{track_id}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(update_sql)
+            self.conn.commit()
+
+    def update_track_permalink(self, track_id, track_permalink):
+        update_sql = f"update tracks set track_permalink='{track_permalink}' where track_id='{track_id}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(update_sql)
+            self.conn.commit()
