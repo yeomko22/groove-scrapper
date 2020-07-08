@@ -28,10 +28,9 @@ class TrackSpider(scrapy.Spider):
         self.target_ids = util.load_target_ids('target01.txt')
         self.dbhandler = DBHandler(self.config)
         self.gcphandler = GCPHandler(self.config)
-        self.target_ids = util.load_target_ids('target01.txt')
 
     def parse(self, response):
-        user_sids = self.dbhandler.select_user(self.target_ids)
+        user_sids = self.dbhandler.select_user_sids(self.target_ids)
         url_head = "https://api-v2.soundcloud.com/users/{0}"
         url_tail = f"/tracks?representation=&client_id={self.config['CLIENT_ID']}&limit=20&offset=0&linked_partitioning=1&app_version=1593604665&app_locale=en"
         for user_sid in user_sids:
@@ -106,10 +105,21 @@ class TrackSpider(scrapy.Spider):
 
     def parse_m3u8(self, response):
         track_json = response.meta['track_json']
-        m3u8_name = f'{track_json["track_id"]}.m3u8'
-        with open(f'./tmp/{m3u8_name}', 'wb') as output:
+        track_id = track_json['track_id']
+        track_user_sid = track_json['track_user_sid']
+        artistdir = f'./tmp/{track_user_sid}'
+        if not os.path.exists(artistdir):
+            os.mkdir(artistdir)
+        trackdir = f'{artistdir}/{track_id}'
+        if not os.path.exists(trackdir):
+            os.mkdir(trackdir)
+        m3u8_path = f'{trackdir}/{track_id}.m3u8'
+        mp3_path = f'{trackdir}/{track_id}.mp3'
+        playlist_path = f'{trackdir}/playlist.m3u8'
+        ts_format = f'{trackdir}/output%03d.ts'
+        
+        with open(m3u8_path, 'wb') as output:
             output.write(io.BytesIO(response.body).read())
-        m3u8_url = self.gcphandler.upload_file(f'./tmp/{m3u8_name}', f'tracks/m3u8/{track_json["track_id"]}.m3u8')
-        track_json['track_m3u8_url'] = m3u8_url
-        self.dbhandler.update_track_m3u8(track_json)
-        os.remove(f'./tmp/{m3u8_name}')
+        os.system(f'ffmpeg -protocol_whitelist file,http,https,tcp,tls,crypto -i {m3u8_path} -c copy {mp3_path}')
+        os.system(f'ffmpeg -i {mp3_path} -c:a libmp3lame -b:a 128k -f segment -segment_time 30 -segment_list {playlist_path} -segment_format mpegts {ts_format}')
+        os.remove(m3u8_path)

@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 scrapper/config
 .idea
+tmp

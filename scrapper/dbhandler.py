@@ -32,7 +32,7 @@ class DBHandler:
             cursor.execute(update_sql)
             self.conn.commit()
 
-    def select_user(self, target_ids):
+    def select_user_sids(self, target_ids):
         select_sql = "select user_sid from users where "
         for target_id in target_ids:
             select_sql += f"user_id='{target_id}' or "
@@ -41,6 +41,12 @@ class DBHandler:
             cursor.execute(select_sql)
         result = [x[0] for x in cursor.fetchall()]
         return result
+
+    def select_tracks_m3u8url(self, user_sid):
+        select_sql = f"select track_id, track_m3u8_url from tracks where track_user_sid='{user_sid}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(select_sql)
+        return cursor.fetchall()
 
     def insert_tracks(self, tracks):
         insert_sql = "insert IGNORE into tracks(created_at, track_id, track_user_sid, track_title, track_genre, track_duration, track_description) values "
@@ -62,3 +68,4 @@ class DBHandler:
         with self.conn.cursor() as cursor:
             cursor.execute(update_sql)
             self.conn.commit()
+
