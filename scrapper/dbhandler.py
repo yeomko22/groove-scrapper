@@ -55,9 +55,9 @@ class DBHandler:
         return cursor.fetchall()
 
     def insert_tracks(self, tracks):
-        insert_sql = "insert IGNORE into tracks(created_at, track_id, track_user_sid, track_title, track_genre, track_duration, track_description, track_permalink, track_likes_count, track_playback_count) values "
+        insert_sql = "insert IGNORE into tracks(created_at, track_id, track_user_sid, track_title, track_genre, track_duration, track_description, track_permalink, track_likes_count, track_playback_count, track_user_id, track_user_name) values "
         for track in tracks:
-            insert_sql += f"{track['created_at'], track['track_id'], track['track_user_sid'], track['track_title'], track['track_genre'], track['track_duration'], track['track_description'], track['track_permalink'], track['track_likes_count'], track['track_playback_count']}, "
+            insert_sql += f"{track['created_at'], track['track_id'], track['track_user_sid'], track['track_title'], track['track_genre'], track['track_duration'], track['track_description'], track['track_permalink'], track['track_likes_count'], track['track_playback_count'], track['track_user_id'], track['track_user_name']}, "
         insert_sql = insert_sql[:-2]
         with self.conn.cursor() as cursor:
             cursor.execute(insert_sql)

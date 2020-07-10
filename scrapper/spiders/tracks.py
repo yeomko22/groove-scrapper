@@ -64,6 +64,8 @@ class TrackSpider(scrapy.Spider):
                 'track_permalink': collection['permalink_url'] if collection['permalink_url'] else '',
                 'track_likes_count': collection['likes_count'] if collection['likes_count'] else 0,
                 'track_playback_count': collection['playback_count'] if collection['playback_count'] else 0,
+                'track_user_id': collection['user']['permalink'] if collection['user']['permalink'] else '',
+                'track_user_name': collection['user']['username'] if collection['user']['username'] else '',
             }
             if artwork_url:
                 artwork_req = scrapy.Request(artwork_url.replace('large', 't500x500'), self.parse_artwork_img)
