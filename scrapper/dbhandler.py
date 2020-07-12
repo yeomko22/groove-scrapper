@@ -38,6 +38,18 @@ class DBHandler:
             cursor.execute(select_sql)
         return cursor.fetchall()
 
+    def select_all_user_sids(self):
+        select_sql = "select user_sid from users"
+        with self.conn.cursor() as cursor:
+            cursor.execute(select_sql)
+        return [x[0] for x in cursor.fetchall()]
+
+    def select_hls_per_track(self, track_id):
+        select_sql = f"select track_hls from tracks where track_id='{track_id}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(select_sql)
+        return cursor.fetchall()
+
     def select_user_tracks(self, user_id):
         select_sql = f"select track_id from tracks where track_user_id='{user_id}'"
         with self.conn.cursor() as cursor:
@@ -56,6 +68,12 @@ class DBHandler:
 
     def select_tracks_m3u8url(self, user_sid):
         select_sql = f"select track_id, track_m3u8_url from tracks where track_user_sid='{user_sid}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(select_sql)
+        return cursor.fetchall()
+
+    def select_track_nohls(self):
+        select_sql = "select track_id from tracks where track_hls=''"
         with self.conn.cursor() as cursor:
             cursor.execute(select_sql)
         return cursor.fetchall()

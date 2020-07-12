@@ -29,6 +29,16 @@ class Uploader:
                 self.upload_hls(user_sid, track_id)
             shutil.rmtree(f'./tmp/{user_sid}')
 
+    def upload_nohls(self):
+        tmpdir = os.path.abspath('./tmp')
+        user_sids = [x for x in os.listdir(tmpdir) if '.DS_Store' not in x and 'readme' not in x]
+        for user_sid in user_sids:
+            user_dir = os.path.join(tmpdir, str(user_sid))
+            track_ids = [x for x in os.listdir(user_dir) if '.DS_Store' not in x]
+            for track_id in track_ids:
+                self.upload_hls(user_sid, track_id)
+            shutil.rmtree(f'./tmp/{user_sid}')
+
     def upload_hls(self, user_sid, track_id):
         upload_url = self.config['UPLOADURL']
         hashstr = str(user_sid) + track_id
@@ -52,3 +62,4 @@ class Uploader:
 if __name__ == '__main__':
     uploader = Uploader()
     uploader.upload_per_user()
+    # uploader.upload_nohls()
