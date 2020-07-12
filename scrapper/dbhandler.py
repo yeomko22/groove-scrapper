@@ -32,6 +32,18 @@ class DBHandler:
             cursor.execute(update_sql)
             self.conn.commit()
 
+    def select_all_users(self):
+        select_sql = "select user_id, user_profile_org, user_profile_thumbnail from users"
+        with self.conn.cursor() as cursor:
+            cursor.execute(select_sql)
+        return cursor.fetchall()
+
+    def select_user_tracks(self, user_id):
+        select_sql = f"select track_id from tracks where track_user_id='{user_id}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(select_sql)
+        return cursor.fetchall()
+
     def select_user_sids(self, target_ids):
         select_sql = "select user_sid from users where "
         for target_id in target_ids:
@@ -69,6 +81,12 @@ class DBHandler:
             cursor.execute(update_sql)
             self.conn.commit()
 
+    def update_track_user_profile(self, track_id, user_profile, user_profile_thumbnail):
+        update_sql = f"update tracks set track_user_profile='{user_profile}', track_user_profile_thumbnail='{user_profile_thumbnail}' where track_id='{track_id}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(update_sql)
+            self.conn.commit()
+
     def update_track_m3u8(self, track_json):
         update_sql = f"update tracks set track_m3u8_url='{track_json['track_m3u8_url']}' where track_id='{track_json['track_id']}'"
         with self.conn.cursor() as cursor:
@@ -89,6 +107,12 @@ class DBHandler:
 
     def update_track_popularity(self, track_id, track_likes_count, track_playback_cont):
         update_sql = f"update tracks set track_likes_count='{track_likes_count}', track_playback_count='{track_playback_cont}' where track_id='{track_id}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(update_sql)
+            self.conn.commit()
+
+    def update_track_artwork(self, track_id, track):
+        update_sql = f"update tracks set track_artwork='{track_artwork}', track_playback_count='{track_playback_cont}' where track_id='{track_id}'"
         with self.conn.cursor() as cursor:
             cursor.execute(update_sql)
             self.conn.commit()

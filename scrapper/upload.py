@@ -21,7 +21,10 @@ class Uploader:
     def upload_per_user(self):
         tmpdir = os.path.abspath('./tmp')
         for user_sid in self.user_sids:
-            track_ids = [x for x in os.listdir(os.path.join(tmpdir, str(user_sid))) if '.DS_Store' not in x]
+            user_dir = os.path.join(tmpdir, str(user_sid))
+            if not os.path.exists(user_dir):
+                continue
+            track_ids = [x for x in os.listdir(user_dir) if '.DS_Store' not in x]
             for track_id in track_ids:
                 self.upload_hls(user_sid, track_id)
             shutil.rmtree(f'./tmp/{user_sid}')
