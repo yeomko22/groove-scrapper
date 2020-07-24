@@ -1,5 +1,5 @@
 import pymysql
-
+import sys
 
 class DBHandler:
     def __init__(self, config):
@@ -9,12 +9,34 @@ class DBHandler:
             user=config['DBUSER'],
             passwd=config['DBPASSWORD'],
             db=config['DBNAME'],
-            charset='utf8'
+            charset='utf8mb4'
         )
 
     def insert_user(self, user_json):
-        insert_sql = "insert IGNORE into users(user_id, user_sid, user_name, user_full_name, user_description, user_country, user_city) values "
-        insert_sql += f"{user_json['user_id'], user_json['user_sid'], user_json['user_name'], user_json['user_full_name'], user_json['user_description'], user_json['user_country'], user_json['user_city']}"
+        insert_sql = "insert IGNORE into users(user_id, user_sid, user_name, user_full_name, user_description, user_country, user_city, user_type) values "
+        insert_sql += f"{user_json['user_id'], user_json['user_sid'], user_json['user_name'], user_json['user_full_name'], user_json['user_description'], user_json['user_country'], user_json['user_city'], user_json['user_type']}"
+        with self.conn.cursor() as cursor:
+            cursor.execute(insert_sql)
+            self.conn.commit()
+
+    def insert_comments(self, comments):
+        if not comments:
+            return
+        insert_sql = "insert into comments(created_at, comment_body, comment_user_id, comment_uploader_id, comment_track_id) values "
+        for comment in comments:
+            insert_sql += f"{comment['created_at'], comment['comment_body'], comment['comment_user_id'], comment['comment_uploader_id'], comment['comment_track_id']}, "
+        insert_sql = insert_sql[:-2]
+        with self.conn.cursor() as cursor:
+            cursor.execute(insert_sql)
+            self.conn.commit()
+
+    def insert_comments_uploader(self, comments):
+        if not comments:
+            return
+        insert_sql = "insert into comments(created_at, comment_body, comment_user_id, comment_uploader_id, comment_track_id) values "
+        for comment in comments:
+            insert_sql += f"{comment['created_at'], comment['comment_body'], comment['comment_user_id'], comment['comment_uploader_id'], comment['comment_track_id']}, "
+        insert_sql = insert_sql[:-2]
         with self.conn.cursor() as cursor:
             cursor.execute(insert_sql)
             self.conn.commit()
@@ -65,6 +87,12 @@ class DBHandler:
             cursor.execute(select_sql)
         result = [x[0] for x in cursor.fetchall()]
         return result
+
+    def select_track_ids(self, user_id):
+        select_sql = f"select track_id from tracks where track_user_id='{user_id}'"
+        with self.conn.cursor() as cursor:
+            cursor.execute(select_sql)
+        return cursor.fetchall()
 
     def select_tracks_m3u8url(self, user_sid):
         select_sql = f"select track_id, track_m3u8_url from tracks where track_user_sid='{user_sid}'"

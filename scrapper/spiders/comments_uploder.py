@@ -1,8 +1,7 @@
 '''
-1. targets 폴더 안에 미리 아티스트 id를 적어놓은 텍스트 파일을 읽어옴
-2. 각 아티스트별 상세 페이지를 요청하여 아티스트 상세 정보 수집
-3. 유저 프로필 이미지 수집 및 썸네일 생성
-4. 유저 배너 이미지 수집
+1. comments_uploader를 가져온다.
+2. 현재 수집된 user를 가져온다.
+3. comments uploader들 가운데 아직 수집되지 않은 유저 아이디만 골라서 데이터를 수집한다.
 '''
 
 import io
@@ -18,8 +17,8 @@ from scrapper.dbhandler import DBHandler
 from scrapper.gcphandler import GCPHandler
 
 
-class ArtistSpider(scrapy.Spider):
-    name = 'artist'
+class CommentUploaderSpider(scrapy.Spider):
+    name = 'comment_uploader'
     start_urls = ['https://soundcloud.com/']
 
     def __init__(self):
@@ -51,7 +50,6 @@ class ArtistSpider(scrapy.Spider):
             "user_description": user_info['description'] if user_info['description'] else '',
             "user_country": user_info['country_code'] if user_info['country_code'] else '',
             "user_city": user_info['city'] if user_info['city'] else '',
-            "user_type": 0
         }
         self.dbhandler.insert_user(user_json)
         if user_profile_link:
