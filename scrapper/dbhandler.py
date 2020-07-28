@@ -88,6 +88,12 @@ class DBHandler:
         result = [x[0] for x in cursor.fetchall()]
         return result
 
+    def select_all_track_ids(self):
+        select_sql = f"select track_id from tracks"
+        with self.conn.cursor() as cursor:
+            cursor.execute(select_sql)
+        return cursor.fetchall()
+
     def select_track_ids(self, user_id):
         select_sql = f"select track_id from tracks where track_user_id='{user_id}'"
         with self.conn.cursor() as cursor:
@@ -168,6 +174,16 @@ class DBHandler:
         for tag in tags:
             insert_sql += f'{track_id, tag}, '
         insert_sql = insert_sql[:-2]
+        with self.conn.cursor() as cursor:
+            cursor.execute(insert_sql)
+            self.conn.commit()
+
+    def insert_waveform(self, track_id, wave_json):
+        waveform = ''
+        for sample in wave_json['samples']:
+            waveform += f'{sample}|'
+        waveform = waveform[:-1]
+        insert_sql = f"insert IGNORE into waveforms(waveform_track_id, waveform) values {track_id, waveform}"
         with self.conn.cursor() as cursor:
             cursor.execute(insert_sql)
             self.conn.commit()
