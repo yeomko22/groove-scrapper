@@ -94,6 +94,12 @@ class DBHandler:
             cursor.execute(select_sql)
         return cursor.fetchall()
 
+    def select_all_track_ids_thumbnail(self):
+        select_sql = f"select track_id, track_artwork_thumbnail from tracks where track_color=''"
+        with self.conn.cursor() as cursor:
+            cursor.execute(select_sql)
+        return cursor.fetchall()
+
     def select_track_ids(self, user_id):
         select_sql = f"select track_id from tracks where track_user_id='{user_id}'"
         with self.conn.cursor() as cursor:
@@ -163,11 +169,18 @@ class DBHandler:
             cursor.execute(update_sql)
             self.conn.commit()
 
-    def update_track_artwork(self, track_id, track):
-        update_sql = f"update tracks set track_artwork='{track_artwork}', track_playback_count='{track_playback_cont}' where track_id='{track_id}'"
+    def update_track_color(self, track_id, track_color):
+        update_sql = f"update tracks set track_color='{track_color}' where track_id='{track_id}'"
         with self.conn.cursor() as cursor:
             cursor.execute(update_sql)
             self.conn.commit()
+
+    def update_track_artwork(self, track_json):
+        pass
+        # update_sql = f"update tracks set track_artwork='{track_artwork}', track_playback_count='{track_playback_cont}' where track_id='{track_id}'"
+        # with self.conn.cursor() as cursor:
+        #     cursor.execute(update_sql)
+        #     self.conn.commit()
 
     def insert_tags(self, track_id, tags):
         insert_sql = 'insert into tags(tag_track_id, tag_name) values '
